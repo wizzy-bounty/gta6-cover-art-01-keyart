@@ -39,6 +39,8 @@ writeFileSync(
   }),
 );
 
-// Hand-in guard: a missing dossier must fail loudly instead of looking like a clean hand-in.
-if (!existsSync(join(out, 'dossier.json'))) throw new Error('dossier.json missing after hand-in');
-console.log(`Leonida Key Art Studio handed in: ${join(out, 'dossier.json')}`);
+const dossierFile = join(out, 'dossier.json');
+if (existsSync(dossierFile) === false) {
+  throw new Error(`Leonida Key Art Studio cannot finish: ${dossierFile} was never created`);
+}
+console.log(`Leonida Key Art Studio is ready — dossier saved at ${dossierFile}`);
