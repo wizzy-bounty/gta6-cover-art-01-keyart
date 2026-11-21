@@ -38,3 +38,7 @@ writeFileSync(
     app_path_max_bytes: 1000,
   }),
 );
+
+// Hand-in guard: a missing dossier must fail loudly instead of looking like a clean hand-in.
+if (!existsSync(join(out, 'dossier.json'))) throw new Error('dossier.json missing after hand-in');
+console.log(`Leonida Key Art Studio handed in: ${join(out, 'dossier.json')}`);
