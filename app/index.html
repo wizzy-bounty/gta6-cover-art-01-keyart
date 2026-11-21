@@ -1,23 +1,154 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cover Snap</title>
+<title>Leonida Key Art Studio — GTA VI cover art from your photos</title>
+<style>
+@font-face {
+  font-family: "Anton";
+  src: url("./fonts/Anton-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pacifico";
+  src: url("./fonts/Pacifico-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+</style>
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<main class="app">
-  <section class="controls">
-    <h1>Cover Snap</h1>
-    <p>A photo and a caption, made into a square cover.</p>
-    <label>Photo <input id="photo" type="file" accept="image/*"></label>
-    <label>Caption <input id="caption" type="text" maxlength="40" value="Sunset Heist"></label>
-    <button id="export" type="button">Export PNG 1080 x 1080</button>
-    <p id="status" role="status"></p>
-  </section>
-  <canvas id="cover" width="1080" height="1080" aria-label="The cover"></canvas>
-</main>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">LK</span>
+      <div class="brand-text">
+        <h1>Leonida Key Art Studio</h1>
+        <p>Hero-first GTA-style cover art from your photos — fully offline.</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button type="button" class="export-btn" data-size="1920x1080">Export 1920×1080</button>
+      <button type="button" class="export-btn" data-size="1080x1350">Export 1080×1350</button>
+      <button type="button" class="export-btn primary" data-size="1080x1080">Export 1080×1080</button>
+    </div>
+  </header>
+
+  <div class="workbench">
+    <aside class="controls">
+      <section class="card">
+        <h2>Photos</h2>
+        <div id="drop-zone" tabindex="0">
+          <strong>Drop photos here</strong>
+          <span>or click to browse — up to 6</span>
+        </div>
+        <input id="file-input" type="file" accept="image/*" multiple hidden>
+        <div id="photo-strip" class="photo-strip"></div>
+        <p class="hint">No uploads yet? The painted demo scenes and the two bundled sample photos are already loaded as panel sources.</p>
+      </section>
+
+      <section class="card">
+        <h2>Layout</h2>
+        <div class="mode-row" role="group" aria-label="Layout mode">
+          <button type="button" class="mode-btn active" data-mode="keyart">Key Art</button>
+          <button type="button" class="mode-btn" data-mode="panels">Panels</button>
+          <button type="button" class="mode-btn" data-mode="duo">Duo</button>
+        </div>
+        <label class="field" id="panel-count-field" hidden>
+          <span>Panel count</span>
+          <select id="panel-count">
+            <option value="4">4 panels</option>
+            <option value="6">6 panels</option>
+          </select>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="popout">
+          <span>Pop-out hero — subject overlaps the frame edge</span>
+        </label>
+      </section>
+
+      <section class="card">
+        <h2>Selected panel</h2>
+        <label class="field">
+          <span>Source</span>
+          <select id="panel-source"></select>
+        </label>
+        <div class="btn-row">
+          <button type="button" id="swap-btn">Swap with next panel</button>
+        </div>
+        <label class="field">
+          <span>Zoom <em id="zoom-value">1.00×</em></span>
+          <input type="range" id="zoom" min="1" max="2.5" step="0.01" value="1">
+        </label>
+        <label class="field">
+          <span>Cast tag</span>
+          <select id="tag-select">
+            <option value="">— none —</option>
+            <option>THE DRIVER</option>
+            <option>THE FIXER</option>
+            <option>THE SIREN</option>
+            <option>THE LOOKOUT</option>
+            <option>THE HEAVY</option>
+            <option>THE GHOST</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Tag text (editable)</span>
+          <input type="text" id="tag-text" maxlength="24" placeholder="Custom tag">
+        </label>
+        <p class="hint">Click a panel in the preview to select it and set its focal point — the crosshair is where the crop looks.</p>
+      </section>
+
+      <section class="card">
+        <h2>Title &amp; edition</h2>
+        <label class="field">
+          <span>Subtitle (script)</span>
+          <input type="text" id="subtitle-input" maxlength="40" value="welcome back to">
+        </label>
+        <label class="field">
+          <span>Title</span>
+          <input type="text" id="title-input" maxlength="18" value="LEONIDA">
+        </label>
+        <label class="field">
+          <span>Title treatment</span>
+          <select id="treatment-select">
+            <option value="chrome">Chrome</option>
+            <option value="sunset" selected>Sunset</option>
+            <option value="gold">Gold</option>
+            <option value="neon">Neon</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Edition frame</span>
+          <select id="edition-select">
+            <option value="standard">Standard</option>
+            <option value="chrome">Chrome</option>
+            <option value="gold" selected>Gold Foil</option>
+            <option value="platinum">Platinum</option>
+            <option value="legend">Legend</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Billing block (one line)</span>
+          <input type="text" id="billing-input" maxlength="140" value="LEONIDA KEY ART STUDIO PRESENTS · STARRING YOU · A LEONIDA STORY · SHOT ON LOCATION IN VICE CITY">
+        </label>
+      </section>
+    </aside>
+
+    <main class="stage">
+      <div class="canvas-wrap">
+        <canvas id="preview" width="1080" height="1080"></canvas>
+      </div>
+      <p class="stage-hint">Preview renders the live cover. Exports draw the same composition at full size.</p>
+    </main>
+  </div>
+</div>
+<canvas id="shot-canvas" hidden></canvas>
 <script type="module" src="./src/main.js"></script>
 </body>
 </html>

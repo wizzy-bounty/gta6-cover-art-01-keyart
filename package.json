@@ -1,0 +1,1 @@
+{"description":"Leonida Key Art Studio — GTA VI cover art from your photos. Offline single-page studio: hero-first key art, panel layouts, smart focal crops, cast tags, title treatments, edition frames and a movie-poster billing block.","name":"leonida-key-art-studio","private":true,"scripts":{"handin":"node main.ts","serve":"node serve.ts"},"type":"module","version":"1.0.0"}
